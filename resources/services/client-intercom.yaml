@@ -159,4 +159,3 @@ spec:
     app.kubernetes.io/name: intercom-client
   rules:
   - path: /infra/accesskeys                    #only can be accesed through intercom when specific path/rule is specified
-  - path: 

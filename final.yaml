@@ -137,19 +137,19 @@ tasks:
         value: "TCP server started"
 
 
-  - name: sleepCommand
-    type: foreground
-    exec:
-      script:
-        cmd: "sleep"
-        args: ["10"]
+  # - name: sleepCommand
+  #   type: foreground
+  #   exec:
+  #     script:
+  #       cmd: "sleep"
+  #       args: ["10"]
 
 #data transfer within the pods
   - name: sendData
     type: foreground
-    timeout: 3m
+    #timeout: 3m
     exec:
-      timeout: 1m
+      timeout: 30s
       script:
         cmd: "kubectl"
         args: ["exec", "${status_of_all_client-pods.capture_pod_name}", "-naws-compute-tibco-tenantx", "-c", "main", "--", "/test/tcp-client", "-a", "localhost:8081"]
@@ -165,8 +165,9 @@ tasks:
         operator: containsStr
         value: "Successfully send/received 1.0KiB"
     repeat:
-      count: 0
-      sleep: 5s               
+      count: -1
+      until: success
+      sleep: 2s    
   - name: sleepCommand
     type: foreground
     exec:

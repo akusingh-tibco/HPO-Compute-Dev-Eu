@@ -2,6 +2,33 @@ name: End-to-EndDataTransferFlow
 
 setup: 
 
+#download tibtunnel & chmod +x
+  - name: downloadTibtunnel
+    type: foreground
+    exec:
+      timeout: 10m
+      script:
+        cmd: "/bin/bash"
+        args: ["-c",  "curl -v -O  ${TIBTUNNEL_DARWIN} && chmod +x tibtunnel"]
+        #args: ["-c", "timeout 10s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://tcds-tunnel.tenant-integration.tcie.pro/tcp-client1 -l ./tibtunnelLog" ]
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+
+#download tcp-server & chmod +x
+  - name: downloadTcpServer
+    type: foreground
+    exec:
+      timeout: 10m
+      script:
+        cmd: "/bin/bash"
+        args: ["-c",  "curl -v -O  ${TCP_SERVER_DARWIN} && chmod +x tcp-server"]
+        #args: ["-c", "timeout 10s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://tcds-tunnel.tenant-integration.tcie.pro/tcp-client1 -l ./tibtunnelLog" ]
+    expect:
+      - name: status
+        operator: equal
+        value: 0
 
 #deploy client.yaml with test-service
   - name: deploy_yaml_file
@@ -95,3 +122,31 @@ teardown:
       - name: confirm_delete
         operator: notContainsStr
         value: "${META_DATA_NAME}"
+
+#remove tcp-server_binary
+  - name: rmTcp-server
+    type: foreground
+    exec:
+      timeout: 30s
+      script:
+        cmd: "/bin/bash"
+        args: ["-c", "rm tcp-server"]
+        #args: ["-c", "timeout 10s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://tcds-tunnel.tenant-integration.tcie.pro/tcp-client1 -l ./tibtunnelLog" ]
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+
+#remove tibtunnel_binary
+  - name: rmTibtunnel
+    type: foreground
+    exec:
+      timeout: 30s
+      script:
+        cmd: "/bin/bash"
+        args: ["-c", "rm tibtunnel"]
+        #args: ["-c", "timeout 10s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://tcds-tunnel.tenant-integration.tcie.pro/tcp-client1 -l ./tibtunnelLog" ]
+    expect:
+      - name: status
+        operator: equal
+        value: 0
