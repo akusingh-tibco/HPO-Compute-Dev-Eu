@@ -1,0 +1,97 @@
+name: End-to-EndDataTransferFlow
+
+setup: 
+
+
+#deploy client.yaml with test-service
+  - name: deploy_yaml_file
+    type: foreground
+    templates: 
+      - input: "./resources/services/client-intercom.yaml"
+        output: "./generated/client-intercom.yaml"
+    exec: 
+      timeout: 2m
+      script:
+        cmd: "kubectl"
+        args: ["apply", "-f", "./generated/client-intercom.yaml"]
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+
+#get the compute service pod
+  - name: getComputeServicesPODName
+    type: foreground
+    exec:
+      timeout: 1m
+      script:
+        cmd: "kubectl"
+        args: ["get", "pods","-l", "app.kubernetes.io/name=compute-services", "-n", "${NAMESPACE_SYSTEM}", "-ojson"]
+        capture:
+          stdout:
+            - name: ComputePod
+              match: "{.items[0].metadata.name}"
+              matchType: jsonpath
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+
+#hash and Secretkey generation
+  - name: code-injection
+    type: foreground  
+    exec:
+      timeout: 1m
+      script: 
+        cmd: "kubectl"
+        args: ["exec", "-n", "${NAMESPACE_SYSTEM}", "${suite.setup.getComputeServicesPODName.ComputePod}", "--", "curl", "-s", "-X", "POST", "http://localhost:9979/v1/stratosphere/accesskeys"]
+        capture:
+          stdout:
+            - name: accesskey
+              matchType: jsonpath
+              match: "{.accessKeySecret}"
+            - name: accesshash
+              matchType: jsonpath
+              match: "{.accessKeyHash}"
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+
+#curl -X POST https://datascience.compute-dev.tcie.pro/qa/intercom-client/exec -d @demo.json
+
+teardown:
+
+# delete the cr_file
+  - name: delete_yaml_file
+    type: foreground
+    exec: 
+      timeout: 1m
+      script:
+        cmd: "kubectl"
+        args: ["delete", "-f", "./generated/vs.yaml"]
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+
+# reverify whether deleted or not
+  - name: confirm_deletion
+    type: foreground
+    exec: 
+      timeout: 1m
+      script: 
+        cmd: "kubectl"
+        args: ["get", "tibcotunnelroute", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+        capture:
+          stdout: 
+            - name: confirm_delete
+              matchType: jsonpath
+              match: "{.items[*].metadata.name}"
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+      - name: confirm_delete
+        operator: notContainsStr
+        value: "${META_DATA_NAME}"
