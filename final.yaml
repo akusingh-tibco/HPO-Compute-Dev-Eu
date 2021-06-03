@@ -114,8 +114,32 @@ tasks:
       #timeout: 1m
       script:
         cmd: "/bin/bash"
-        args: ["-c", "timeout 40s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://${FQDN}/${ENDPOINT} -l ./tibtunnelLog" ]
+        args: ["-c", "timeout 60s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://${FQDN}/${ENDPOINT} -l ./tibtunnelLog" ]
 
+
+
+#TunnelStaus
+  - name: CheckTunnelStatus
+    type: foreground
+    timeout: 20s
+    exec:
+      script:
+        cmd: "kubectl"
+        args: ["exec", "${status_of_all_client-pods.capture_pod_name}", "-naws-compute-tibco-tenantx", "-c", "main", "--", "curl", "-s", "localhost:7778/v1/tunnel/status"]
+        capture:
+          stdout:
+            # - name: running_state
+            #   matchType: jsonpath
+            #   match: "{.isConnected}"  
+            - name: output
+              match: "((?s).*)"          
+    expect:
+      - name: output
+        operator: containsStr
+        value: "true"
+      - name: output
+        operator: notContainsStr
+        value: "false"
 #start tcp-server 
   - name: startServer
     type: background
@@ -173,4 +197,4 @@ tasks:
     exec:
       script:
         cmd: "sleep"
-        args: ["60"]
+        args: ["80"]
