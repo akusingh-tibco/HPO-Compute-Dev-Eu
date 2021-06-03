@@ -118,7 +118,7 @@ tasks:
 
 
 
-#TunnelStaus
+#TunnelStatus
   - name: CheckTunnelStatus
     type: foreground
     timeout: 20s
