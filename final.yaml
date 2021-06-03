@@ -43,7 +43,7 @@ tasks:
       timeout: 15s
       script:
         cmd: "/bin/bash"
-        args: ["-c", "cd /Users/akusingh/Testing/Tibtunnel_CIC-2 && cat ~/.tibtunnel/credentials"]
+        args: ["-c", "cat ~/.tibtunnel/credentials"]
         #./tibtunnel configure -a <<accessKey>>
         capture:
           stdout:
