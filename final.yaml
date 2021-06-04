@@ -140,6 +140,7 @@ tasks:
       - name: output
         operator: notContainsStr
         value: "false"
+        
 #start tcp-server 
   - name: startServer
     type: background
