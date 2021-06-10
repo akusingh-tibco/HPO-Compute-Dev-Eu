@@ -116,8 +116,6 @@ tasks:
         cmd: "/bin/bash"
         args: ["-c", "timeout 60s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://${FQDN}/${ENDPOINT} -l ./tibtunnelLog" ]
 
-
-
 #TunnelStatus
   - name: CheckTunnelStatus
     type: foreground

@@ -2,8 +2,8 @@ name: End-to-EndDataTransferFlow
 
 setup: 
 
-#download tibtunnel & chmod +x
-  - name: downloadTibtunnel
+# Covers OS and Browsers Compatibility Test Suite
+  - name: TCC-3377-downloadTibtunnel
     type: foreground
     exec:
       timeout: 10m
@@ -16,8 +16,8 @@ setup:
         operator: equal
         value: 0
 
-#download tcp-server & chmod +x
-  - name: downloadTcpServer
+# download tcp-server & chmod +x
+  - name: TCC-downloadTcpServer
     type: foreground
     exec:
       timeout: 10m
@@ -88,6 +88,8 @@ setup:
 #curl -X POST https://datascience.compute-dev.tcie.pro/qa/intercom-client/exec -d @demo.json
 
 teardown:
+
+# changes to be made to shift the delete cr in testcase.
 
 # delete the cr_file
   - name: delete_yaml_file
