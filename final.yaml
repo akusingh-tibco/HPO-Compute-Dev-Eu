@@ -159,14 +159,6 @@ tasks:
         operator: containsStr
         value: "TCP server started"
 
-
-  # - name: sleepCommand
-  #   type: foreground
-  #   exec:
-  #     script:
-  #       cmd: "sleep"
-  #       args: ["10"]
-
 #data transfer within the pods
   - name: sendData
     type: foreground
