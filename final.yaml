@@ -197,3 +197,40 @@ tasks:
       script:
         cmd: "sleep"
         args: ["80"]
+
+teardown: 
+# delete the cr_file
+  - name: delete_yaml_file
+    type: foreground
+    exec: 
+      timeout: 1m
+      script:
+        cmd: "kubectl"
+        args: ["delete", "-f", "./generated/vs.yaml"]
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+
+# reverify whether deleted or not
+  - name: confirm_deletion
+    type: foreground
+    exec: 
+      timeout: 1m
+      script: 
+        cmd: "kubectl"
+        args: ["get", "tibcotunnelroute", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+        capture:
+          stdout: 
+            - name: confirm_delete
+              matchType: jsonpath
+              match: "{.items[*].metadata.name}"
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+      - name: confirm_delete
+        operator: notContainsStr
+        value: "${META_DATA_NAME}"
+
+#changed from suite teardown to task teardown
