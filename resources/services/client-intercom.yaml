@@ -121,28 +121,6 @@ spec:
   sessionAffinity: None
   type: ClusterIP
 ---
-apiVersion: cloud.tibco.com/v1
-kind: TibcoRoute
-metadata:
-  name: intercom-client
-  namespace: ${NAMESPACE_TENANT}
-  labels:
-    app.kubernetes.io/name: intercom-client
-spec:
-  serviceName: intercom-client
-  endpoints:
-  - path: /qa/intercom-client/exec
-    protocol: http
-    port: 8080
-    internalPath: /exec
-    proxies:
-    - listener: virtual
-      config: insecure
-      fqdn: ${FQDN_DNS}
-      #TCMD_DNS_DOMAIN: metadata.local.cic2.pro
-      #fqdn: messaging.compute-dev.eu-west-1.tcie.pro  # can be anything which is deployed.  tenant
-  #          tds-tunnel.compute-dev.eu-west-1.tcie.pro
----
 # allow appName "intercom-client" to access /mock/intercom/ok AND /mock/intercom/param?foo=bar
 apiVersion: cloud.tibco.com/v1
 kind: TibcoIntercomRule

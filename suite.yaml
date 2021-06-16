@@ -1,37 +1,9 @@
-name: End-to-EndDataTransferFlow
+name: suite
 
 setup: 
 
-# Covers OS and Browsers Compatibility Test Suite
-  - name: TCC-3377-downloadTibtunnel
-    type: foreground
-    exec:
-      timeout: 10m
-      script:
-        cmd: "/bin/bash"
-        args: ["-c",  "curl -v -O  ${TIBTUNNEL_DARWIN} && chmod +x tibtunnel"]
-        #args: ["-c", "timeout 10s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://tcds-tunnel.tenant-integration.tcie.pro/tcp-client1 -l ./tibtunnelLog" ]
-    expect:
-      - name: status
-        operator: equal
-        value: 0
-
-# download tcp-server & chmod +x
-  - name: TCC-downloadTcpServer
-    type: foreground
-    exec:
-      timeout: 10m
-      script:
-        cmd: "/bin/bash"
-        args: ["-c",  "curl -v -O  ${TCP_SERVER_DARWIN} && chmod +x tcp-server"]
-        #args: ["-c", "timeout 10s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://tcds-tunnel.tenant-integration.tcie.pro/tcp-client1 -l ./tibtunnelLog" ]
-    expect:
-      - name: status
-        operator: equal
-        value: 0
-
-#deploy client.yaml with test-service
-  - name: deploy_yaml_file
+# Deploy test-service as Intercom-Client
+  - name: deployIntercomClient
     type: foreground
     templates: 
       - input: "./resources/services/client-intercom.yaml"
@@ -46,32 +18,32 @@ setup:
         operator: equal
         value: 0
 
-#get the compute service pod
-  - name: getComputeServicesPODName
+# To Discover Intercom-client Pod
+  - name: getIntercomPod
     type: foreground
     exec:
       timeout: 1m
       script:
         cmd: "kubectl"
-        args: ["get", "pods","-l", "app.kubernetes.io/name=compute-services", "-n", "${NAMESPACE_SYSTEM}", "-ojson"]
+        args: ["get", "pods","-l", "app.kubernetes.io/name=intercom-client", "-n", "${NAMESPACE_TENANT}", "-ojson"]
         capture:
           stdout:
-            - name: ComputePod
-              match: "{.items[0].metadata.name}"
+            - name: IntPod
+              match: "{.items[*].metadata.name}"
               matchType: jsonpath
     expect:
       - name: status
         operator: equal
         value: 0
 
-#hash and Secretkey generation
-  - name: code-injection
+# AccessKeyHash and AccessSecretkey generation
+  - name: AccesssecretKey-AccessHashKey-generation
     type: foreground  
     exec:
       timeout: 1m
       script: 
         cmd: "kubectl"
-        args: ["exec", "-n", "${NAMESPACE_SYSTEM}", "${suite.setup.getComputeServicesPODName.ComputePod}", "--", "curl", "-s", "-X", "POST", "http://localhost:9979/v1/stratosphere/accesskeys"]
+        args: ["exec", "-n", "${NAMESPACE_TENANT}", "${suite.setup.getIntercomPod.IntPod}", "--", "curl", "-s", "-H", "X-Atmosphere-For-User:qa", "-X", "POST", "http://router.${NAMESPACE_SYSTEM}.svc.cluster.local:90/infra/accesskeys"]
         capture:
           stdout:
             - name: accesskey
@@ -85,34 +57,65 @@ setup:
         operator: equal
         value: 0
 
-#curl -X POST https://datascience.compute-dev.tcie.pro/qa/intercom-client/exec -d @demo.json
+# Tibtunnel Configure Profile and Verify Profile
+  - name: tibTunnelConfigureDefaultProfile
+    type: foreground
+    exec:
+      timeout: 5s
+      script:
+        cmd: "/bin/bash"
+        args: ["-c", "./tibtunnel configure -a ${suite.setup.AccesssecretKey-AccessHashKey-generation.accesskey}"]
+        capture:
+          stdout:
+            - name: output
+              match: "((?s).*)"
+    expect:
+      - name: output
+        operator: containsStr
+        value: "Configuration for profile 'default' was successfully saved"
 
+  - name: verifyProfileSaved
+    type: foreground
+    exec:
+      timeout: 15s
+      script:
+        cmd: "/bin/bash"
+        args: ["-c", "cat ~/.tibtunnel/credentials"]
+        capture:
+          stdout:
+            - name: output
+              match: "((?s).*)"
+    expect:
+      - name: output
+        operator: containsStr
+        value: "${suite.setup.AccesssecretKey-AccessHashKey-generation.accesskey}"
+ 
 teardown:
 
-#remove tcp-server_binary
-  - name: rmTcp-server
-    type: foreground
-    exec:
-      timeout: 30s
-      script:
-        cmd: "/bin/bash"
-        args: ["-c", "rm tcp-server"]
-        #args: ["-c", "timeout 10s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://tcds-tunnel.tenant-integration.tcie.pro/tcp-client1 -l ./tibtunnelLog" ]
-    expect:
-      - name: status
-        operator: equal
-        value: 0
+# #remove tcp-server_binary
+#   - name: rmTcp-server
+#     type: foreground
+#     exec:
+#       timeout: 30s
+#       script:
+#         cmd: "/bin/bash"
+#         args: ["-c", "rm tcp-server"]
+#         #args: ["-c", "timeout 10s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://tcds-tunnel.tenant-integration.tcie.pro/tcp-client1 -l ./tibtunnelLog" ]
+#     expect:
+#       - name: status
+#         operator: equal
+#         value: 0
 
-#remove tibtunnel_binary
-  - name: rmTibtunnel
-    type: foreground
-    exec:
-      timeout: 30s
-      script:
-        cmd: "/bin/bash"
-        args: ["-c", "rm tibtunnel"]
-        #args: ["-c", "timeout 10s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://tcds-tunnel.tenant-integration.tcie.pro/tcp-client1 -l ./tibtunnelLog" ]
-    expect:
-      - name: status
-        operator: equal
-        value: 0
+# # #remove tibtunnel_binary
+#   - name: rmTibtunnel
+#     type: foreground
+#     exec:
+#       timeout: 30s
+#       script:
+#         cmd: "/bin/bash"
+#         args: ["-c", "rm tibtunnel"]
+#         #args: ["-c", "timeout 10s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://tcds-tunnel.tenant-integration.tcie.pro/tcp-client1 -l ./tibtunnelLog" ]
+#     expect:
+#       - name: status
+#         operator: equal
+#         value: 0

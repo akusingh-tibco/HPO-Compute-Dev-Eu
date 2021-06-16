@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+   <testsuite name="End-to-EndDataTransferFlow" tests="1" failures="0" errors="0" time="211.190392171">
+      <properties></properties>
+      <testcase name="SingleDeploymentwithDataTransfer" classname="tibtest" time="211.190392171"></testcase>
+   </testsuite>
+</testsuites>
