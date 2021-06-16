@@ -55,8 +55,7 @@ spec:
           kubernetes.io/os: linux
         containers:
         - name: main
-          #image: reldocker.tibco.com/stratosphere/test-service:23 664529841144.dkr.ecr.us-west-2.amazonaws.com/stratosphere/hybrid-server:9
-          image: 664529841144.dkr.ecr.us-west-2.amazonaws.com/stratosphere/test-service:latest
+          image: ${TEST-SERVICE}
           imagePullPolicy: Always
           ports:
           - containerPort: 8080
