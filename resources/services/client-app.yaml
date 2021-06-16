@@ -1,8 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tcp-client-vs-1
-  namespace: aws-compute-tibco-tenantx
+  name: ${META_DATA_NAME}
+  namespace: ${NAMESPACE_TENANT}
   labels:
     app: http                         #introducing a new label-selector bcz in multiple deployment case we can't disinguish b/w the deployments and their pods if not labelled
     app.kubernetes.io/name: tcp-client
