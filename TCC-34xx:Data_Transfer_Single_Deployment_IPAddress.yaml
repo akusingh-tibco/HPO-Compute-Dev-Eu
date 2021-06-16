@@ -3,20 +3,41 @@ name: sanity-SingleDeploymentwithDataTransfer
 tasks: 
 
 # Deploy Tibcotunnelroute CR
-  - name: deployCR
-    type: foreground
-    templates: 
-      - input: "./resources/services/tibcotunnelrouteCR.yaml"
-        output: "./generated/tibcotunnelrouteCR.yaml"
-    exec: 
-      timeout: 2m
-      script:
-        cmd: "kubectl"
-        args: ["apply", "-f", "./generated/tibcotunnelrouteCR.yaml"]
+
+- name: tibcotunnelroute-status-withFunctions
+  type: foreground
+  exec: 
+    timeout: 30s
+    script: 
+        cmd: "${ENV.fnSh}"
+        args: ["deployResourse", "./generated/tibcotunnelrouteCR.yaml"]
+        capture:
+          stdout:
+            - name: output
+              match: "((?s).*)"
+          stderr:
+            - name: outerr
+              match: "((?s).*)"
     expect:
       - name: status
         operator: equal
         value: 0
+
+
+  # - name: deployCR
+  #   type: foreground
+  #   templates: 
+  #     - input: "./resources/services/tibcotunnelrouteCR.yaml"
+  #       output: "./generated/tibcotunnelrouteCR.yaml"
+  #   exec: 
+  #     timeout: 2m
+  #     script:
+  #       cmd: "kubectl"
+  #       args: ["apply", "-f", "./generated/tibcotunnelrouteCR.yaml"]
+  #   expect:
+  #     - name: status
+  #       operator: equal
+  #       value: 0
     
 # Status of Tibcotunneroute CR
   - name: tibcotunnelroute-status
@@ -92,7 +113,7 @@ tasks:
     exec:
       script:
         cmd: "/bin/bash"
-        args: ["-c", "timeout 60s ./tibtunnel connect -d --remote-debug -s ${CONTAINER_PORT}:${ONPREMISE_HOSTNAME}:${ONPREMISE_PORT} https://${FQDN}/${ENDPOINT} -l ./tibtunnelLog" ]
+        args: ["-c", "timeout 60s ./tibtunnel connect -d --remote-debug -s ${CONTAINER_PORT}:${ONPREMISE_IP}:${ONPREMISE_PORT} https://${FQDN}/${ENDPOINT} -l ./tibtunnelLog" ]
 
 # Tunnel Status b/w tibtunnel and Client App 
   - name: checkTunnelStatus
