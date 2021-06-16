@@ -92,6 +92,40 @@ setup:
  
 teardown:
 
+# Remove test-service Intercom-Client
+  - name: delete_intercom_file
+    type: foreground
+    exec: 
+      timeout: 1m
+      script:
+        cmd: "kubectl"
+        args: ["delete", "-f", "./generated/client-intercom.yaml"]
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+
+# Verify test-service deletion
+  - name: confirm_deletion_intercom
+    type: foreground
+    exec: 
+      timeout: 1m
+      script: 
+        cmd: "kubectl"
+        args: ["get", "deploy", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+        capture:
+          stdout: 
+            - name: confirm_delete_intercom
+              matchType: jsonpath
+              match: "{.items[*].metadata.name}"
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+      - name: confirm_delete_intercom
+        operator: notContainsStr
+        value: "intercom-client"
+
 #remove tcp-server_binary
   # - name: rmTcp-server
   #   type: foreground
