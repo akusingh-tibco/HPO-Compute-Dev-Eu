@@ -109,10 +109,13 @@ tasks:
     expect:
       - name: output
         operator: containsStr
-        value: "true"
+        value: "\"isConnected\":true"
       - name: output
         operator: notContainsStr
         value: "false"
+      - name: output
+        operator: containsStr
+        value: "Tunnel is connected"
         
 # Start On-Prem Appn
   - name: startOnpremAppn
