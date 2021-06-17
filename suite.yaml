@@ -2,7 +2,7 @@ name: suite
 
 setup: 
 
-#download tibtunnel & chmod +x
+# #download tibtunnel & chmod +x
   - name: downloadTibtunnel
     type: foreground
     exec:

@@ -46,6 +46,22 @@ tasks:
         operator: containsStr
         value: "processed"
 
+# # Deploy ClientAppn Deployments
+#   - name: deployClientApp
+#     type: foreground
+#     templates: 
+#       - input: "./resources/services/client-app.yaml"
+#         output: "./generated/client-app.yaml"
+#     exec: 
+#       timeout: 2m
+#       script:
+#         cmd: "kubectl"
+#         args: ["apply", "-f", "./generated/client-app.yaml"]
+#     expect:
+#       - name: status
+#         operator: equal
+#         value: 0
+
 # Deploy ClientAppn Deployments
   - name: deployClientApp
     type: foreground
@@ -55,43 +71,76 @@ tasks:
     exec: 
       timeout: 2m
       script:
-        cmd: "kubectl"
-        args: ["apply", "-f", "./generated/client-app.yaml"]
+        cmd: "${ENV.fnSh}"
+        args: ["deployResourse", "./generated/client-app.yaml"]
     expect:
       - name: status
         operator: equal
         value: 0
 
+# # Status of Client Applications
+#   - name: status_of-clientAppnnn
+#     type: foreground
+#     exec: 
+#       timeout: 30s
+#       script: 
+#         cmd: "kubectl"
+#         args: ["get", "pods", "-n", "${NAMESPACE_TENANT}", "-o", "json", "--selector=app=http"]
+#         capture:
+#           stdout:
+#             - name: running_statee
+#               matchType: jsonpath
+#               match: "{.items[*].status.phase}"
+#             - name: capture_pod_namee
+#               matchType: jsonpath
+#               match: "{.items[0].metadata.name}"
+#     expect:
+#       - name: status
+#         operator: equal
+#         value: 0
+#       - name: running_statee
+#         operator: contains
+#         value: "Running"
+#       - name: running_statee
+#         operator: notContains
+#         value: "Pending"
+#     repeat:
+#       count: -1
+#       until: success
+#       sleep: 5s  
+
+
 # Status of Client Applications
-  - name: status_of-clientAppnnn
+  - name: status_of-clientAppn
     type: foreground
     exec: 
       timeout: 30s
       script: 
-        cmd: "kubectl"
-        args: ["get", "pods", "-n", "${NAMESPACE_TENANT}", "-o", "json", "--selector=app=http"]
+        cmd: "${ENV.fnSh}"
+        args: ["getPodNamesUsingSelector", "${NAMESPACE_TENANT}", "app=http"]
         capture:
           stdout:
-            - name: running_statee
+            - name: running_state
               matchType: jsonpath
               match: "{.items[*].status.phase}"
-            - name: capture_pod_namee
+            - name: capture_pod_name
               matchType: jsonpath
               match: "{.items[0].metadata.name}"
     expect:
       - name: status
         operator: equal
         value: 0
-      - name: running_statee
+      - name: running_state
         operator: contains
         value: "Running"
-      - name: running_statee
+      - name: running_state
         operator: notContains
         value: "Pending"
     repeat:
-      count: -1
+      count: 3
       until: success
-      sleep: 5s  
+      sleep: 20ms  
+
 
 # Tibtunnel Connect
   - name: tibtunnelConnect
@@ -99,16 +148,38 @@ tasks:
     exec:
       script:
         cmd: "/bin/bash"
-        args: ["-c", "timeout 60s ./tibtunnel connect -d --remote-debug -s ${CONTAINER_PORT}:${ONPREMISE_IP}:${ONPREMISE_PORT} https://${FQDN}/${ENDPOINT} -l ./tibtunnelLog" ]
+        args: ["-c", "timeout 60s ./tibtunnel connect -d --remote-debug -s ${CONTAINER_PORT}:${IP}:${ONPREMISE_PORT} https://${FQDN}/${ENDPOINT} -l ./tibtunnelLog" ]
 
+# # Tunnel Status b/w tibtunnel and Client App 
+#   - name: checkTunnelStatus
+#     type: foreground
+#     timeout: 20s
+#     exec:
+#       script:
+#         cmd: "kubectl"
+#         args: ["exec", "${status_of-clientAppnnn.capture_pod_namee}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "curl", "-s", "localhost:7778/v1/tunnel/status"]
+#         capture:
+#           stdout: 
+#             - name: output
+#               match: "((?s).*)"          
+#     expect:
+#       - name: output
+#         operator: containsStr
+#         value: "\"isConnected\":true"
+#       - name: output
+#         operator: notContainsStr
+#         value: "false"
+    
 # Tunnel Status b/w tibtunnel and Client App 
   - name: checkTunnelStatus
     type: foreground
     timeout: 20s
     exec:
       script:
-        cmd: "kubectl"
-        args: ["exec", "${status_of-clientAppnnn.capture_pod_namee}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "curl", "-s", "localhost:7778/v1/tunnel/status"]
+        #cmd: "kubectl"
+        #args: ["exec", "${status_of-clientAppn.capture_pod_name}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "curl", "-s", "localhost:7778/v1/tunnel/status"]
+        cmd: "${ENV.fnSh}"
+        args: ["checkTunnelStatus","${status_of-clientAppn.capture_pod_name}","${NAMESPACE_TENANT}"]
         capture:
           stdout: 
             - name: output
@@ -120,14 +191,18 @@ tasks:
       - name: output
         operator: notContainsStr
         value: "false"
-        
+    repeat:
+      count: 3
+      until: success
+      sleep: 10ms  
+
 # Start On-Prem Appn with IP-Address
   - name: startOnpremAppn
     type: background
     exec:
       script:
         cmd: "/bin/bash"
-        args: ["-c", "timeout 30s ./tcp-server -d -a ${ONPREMISE_IP}:${ONPREMISE_PORT} >> ./tcpserverLog"]
+        args: ["-c", "timeout 30s ./tcp-server -d -a ${IP}:${ONPREMISE_PORT} >> ./tcpserverLog"]
         capture:
           stdout:
             - name: output
@@ -140,14 +215,47 @@ tasks:
         operator: containsStr
         value: "TCP server started"
 
+# # Communication b/w ClientPod and On-Prem Appn by sending Data
+#   - name: sendData
+#     type: foreground
+#     exec:
+#       timeout: 30s
+#       script:
+#         cmd: "kubectl"
+#         args: ["exec", "${status_of-clientAppnnn.capture_pod_namee}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "/test/tcp-client", "-a", "${ONPREMISE_IP}:${ONPREMISE_PORT}"]
+#         capture:
+#           stdout:
+#             - name: output
+#               match: "((?s).*)"
+#           stderr:
+#             - name: stderr
+#               match: "((?s).*)"              
+#     expect:
+#       - name: stderr
+#         operator: containsStr
+#         value: "Successfully send/received 1.0KiB"
+#     repeat:
+#       count: -1
+#       until: success
+#       sleep: 2s    
+#   - name: sleepCommand
+#     type: foreground
+#     exec:
+#       script:
+#         cmd: "sleep"
+#         args: ["80"]
+
 # Communication b/w ClientPod and On-Prem Appn by sending Data
   - name: sendData
     type: foreground
     exec:
       timeout: 30s
       script:
-        cmd: "kubectl"
-        args: ["exec", "${status_of-clientAppnnn.capture_pod_namee}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "/test/tcp-client", "-a", "${ONPREMISE_IP}:${ONPREMISE_PORT}"]
+        #cmd: "kubectl"
+        #args: ["exec", "${status_of-clientAppn.capture_pod_name}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "/test/tcp-client", "-a", "${ONPREMISE_IP}:${ONPREMISE_PORT}"]
+        cmd: "${ENV.fnSh}"
+        #args: ["dataTransferUsingOnpremIP", "${status_of-clientAppn.capture_pod_name}", "${NAMESPACE_TENANT}", "${IP}:${CONTAINER_PORT}" ]
+        args: ["dataTransferToOnpremApp", "${status_of-clientAppn.capture_pod_name}", "${NAMESPACE_TENANT}", "${IP}:${CONTAINER_PORT}" ]
         capture:
           stdout:
             - name: output
@@ -160,9 +268,9 @@ tasks:
         operator: containsStr
         value: "Successfully send/received 1.0KiB"
     repeat:
-      count: -1
+      count: 3
       until: success
-      sleep: 2s    
+      sleep: 2s 
   - name: sleepCommand
     type: foreground
     exec:
@@ -172,18 +280,51 @@ tasks:
 
 teardown: 
 
-# Delete the Tibcotunneroute CR
+# # Delete the Tibcotunneroute CR
+#   - name: delete_yaml_file
+#     type: foreground
+#     exec: 
+#       timeout: 1m
+#       script:
+#         cmd: "kubectl"
+#         args: ["delete", "-f", "./generated/tibcotunnelrouteCR.yaml"]
+#     expect:
+#       - name: status
+#         operator: equal
+#         value: 0
+
   - name: delete_yaml_file
     type: foreground
     exec: 
       timeout: 1m
       script:
-        cmd: "kubectl"
-        args: ["delete", "-f", "./generated/tibcotunnelrouteCR.yaml"]
+        #cmd: "kubectl"
+        #args: ["delete", "-f", "./generated/tibcotunnelrouteCR.yaml"]
+        cmd: "${ENV.fnSh}"
+        args: ["deleteResourse", "./generated/tibcotunnelrouteCR.yaml"]
     expect:
       - name: status
         operator: equal
         value: 0
+
+
+# # Delete the ClientApp Deployments
+#   - name: delete_yaml_file
+#     type: foreground
+#     exec: 
+#       timeout: 1m
+#       script:
+#         cmd: "kubectl"
+#         args: ["delete", "-f", "./generated/client-app.yaml"]
+#     expect:
+#       - name: status
+#         operator: equal
+#         value: 0
+#     repeat:
+#       count: -1
+#       until: success
+#       sleep: 10ms
+ 
 
 # Delete the ClientApp Deployments
   - name: delete_yaml_file
@@ -191,25 +332,51 @@ teardown:
     exec: 
       timeout: 1m
       script:
-        cmd: "kubectl"
-        args: ["delete", "-f", "./generated/client-app.yaml"]
+        #cmd: "kubectl"
+        #args: ["delete", "-f", "./generated/client-app.yaml"]
+        cmd: "${ENV.fnSh}"
+        args: ["deleteResourse", "./generated/client-app.yaml"]
     expect:
       - name: status
         operator: equal
         value: 0
     repeat:
-      count: -1
+      count: 3
       until: success
       sleep: 10ms
- 
+
+
+# # Verify Tibcotunneroute CR Deletion
+#   - name: confirm_deletionCR
+#     type: foreground
+#     exec: 
+#       timeout: 1m
+#       script: 
+#         cmd: "kubectl"
+#         args: ["get", "tibcotunnelroute", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+#         capture:
+#           stdout: 
+#             - name: confirm_deleteCR
+#               matchType: jsonpath
+#               match: "{.items[*].metadata.name}"
+#     expect:
+#       - name: status
+#         operator: equal
+#         value: 0
+#       - name: confirm_deleteCR
+#         operator: notContainsStr
+#         value: "${META_DATA_NAME}"
+
 # Verify Tibcotunneroute CR Deletion
   - name: confirm_deletionCR
     type: foreground
     exec: 
       timeout: 1m
       script: 
-        cmd: "kubectl"
-        args: ["get", "tibcotunnelroute", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+        #cmd: "kubectl"
+        #args: ["get", "tibcotunnelroute", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+        cmd: "${ENV.fnSh}"
+        args: ["getResources", "tibcotunnelroute", "${NAMESPACE_TENANT}"]
         capture:
           stdout: 
             - name: confirm_deleteCR
@@ -223,14 +390,42 @@ teardown:
         operator: notContainsStr
         value: "${META_DATA_NAME}"
 
+
+# Verify ClientApp Deployments deletion
+  # - name: confirm_deletionA
+  #   type: foreground
+  #   exec: 
+  #     timeout: 1m
+  #     script: 
+  #       cmd: "kubectl"
+  #       args: ["get", "deploy", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+  #       capture:
+  #         stdout: 
+  #           - name: confirm_deleteA
+  #             matchType: jsonpath
+  #             match: "{.items[*].metadata.name}"
+  #   expect:
+  #     - name: status
+  #       operator: equal
+  #       value: 0
+  #     - name: confirm_deleteA
+  #       operator: notContainsStr
+  #       value: "${META_DATA_NAME}"
+  #   repeat:
+  #     count: -1
+  #     until: success
+  #     sleep: 10ms  
+
 # Verify ClientApp Deployments deletion
   - name: confirm_deletionA
     type: foreground
     exec: 
       timeout: 1m
       script: 
-        cmd: "kubectl"
-        args: ["get", "deploy", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+        #cmd: "kubectl"
+        #args: ["get", "deploy", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+        cmd: "${ENV.fnSh}"
+        args: ["getResources", "deploy", "${NAMESPACE_TENANT}"]
         capture:
           stdout: 
             - name: confirm_deleteA
@@ -244,9 +439,10 @@ teardown:
         operator: notContainsStr
         value: "${META_DATA_NAME}"
     repeat:
-      count: -1
+      count: 3
       until: success
-      sleep: 10ms  
+      sleep: 10ms 
+
 
 # Verify client-pod deletion
   - name: confirm_client-pod_deletee
@@ -269,6 +465,6 @@ teardown:
         operator: notContainsStr
         value: "${META_DATA_NAME}"
     repeat:
-      count: -1
+      count: 7
       until: success
       sleep: 10ms  
