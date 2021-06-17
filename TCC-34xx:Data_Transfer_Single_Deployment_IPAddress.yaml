@@ -91,7 +91,7 @@ tasks:
     repeat:
       count: -1
       until: success
-      sleep: 20ms  
+      sleep: 5s  
 
 # Tibtunnel Connect
   - name: tibtunnelConnect
