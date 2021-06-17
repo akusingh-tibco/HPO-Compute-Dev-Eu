@@ -54,7 +54,7 @@ function getResources(){
 
 
 
-function data Trans(){
+function dataTrans(){
     input params - host,port from callinf TASK
     exec pods   
     .cp-client
