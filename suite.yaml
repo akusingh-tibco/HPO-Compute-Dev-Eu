@@ -153,6 +153,7 @@ teardown:
       - name: confirm_delete_intercom
         operator: notContainsStr
         value: "intercom-client"
+    
 
 #remove tcp-server_binary
   - name: rmTcp-server

@@ -201,6 +201,10 @@ teardown:
       - name: status
         operator: equal
         value: 0
+    repeat:
+      count: -1
+      until: success
+      sleep: 10ms
 
         
 # Verify Tibcotunneroute CR Deletion
