@@ -244,3 +244,7 @@ teardown:
       - name: confirm_deleteA
         operator: notContainsStr
         value: "${META_DATA_NAME}"
+    repeat:
+      count: -1
+      until: success
+      sleep: 10ms 
