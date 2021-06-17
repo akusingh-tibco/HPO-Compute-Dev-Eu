@@ -153,6 +153,10 @@ teardown:
       - name: confirm_delete_intercom
         operator: notContainsStr
         value: "intercom-client"
+    repeat:
+      count: -1
+      until: success
+      sleep: 20ms  
     
 
 #remove tcp-server_binary

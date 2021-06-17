@@ -120,10 +120,6 @@ tasks:
       - name: output
         operator: notContainsStr
         value: "false"
-    repeat:
-      count: -1
-      until: success
-      sleep: 10ms  
         
 # Start On-Prem Appn with IP-Address
   - name: startOnpremAppn
