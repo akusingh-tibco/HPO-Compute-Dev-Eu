@@ -63,7 +63,7 @@ tasks:
         value: 0
 
 # Status of Client Applications
-  - name: status_of-clientAppn
+  - name: status_of-clientAppnnn
     type: foreground
     exec: 
       timeout: 30s
@@ -72,20 +72,20 @@ tasks:
         args: ["get", "pods", "-n", "${NAMESPACE_TENANT}", "-o", "json", "--selector=app=http"]
         capture:
           stdout:
-            - name: running_state
+            - name: running_statee
               matchType: jsonpath
               match: "{.items[*].status.phase}"
-            - name: capture_pod_name
+            - name: capture_pod_namee
               matchType: jsonpath
               match: "{.items[0].metadata.name}"
     expect:
       - name: status
         operator: equal
         value: 0
-      - name: running_state
+      - name: running_statee
         operator: contains
         value: "Running"
-      - name: running_state
+      - name: running_statee
         operator: notContains
         value: "Pending"
     repeat:
@@ -108,7 +108,7 @@ tasks:
     exec:
       script:
         cmd: "kubectl"
-        args: ["exec", "${status_of-clientAppn.capture_pod_name}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "curl", "-s", "localhost:7778/v1/tunnel/status"]
+        args: ["exec", "${status_of-clientAppnnn.capture_pod_namee}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "curl", "-s", "localhost:7778/v1/tunnel/status"]
         capture:
           stdout: 
             - name: output
@@ -147,7 +147,7 @@ tasks:
       timeout: 30s
       script:
         cmd: "kubectl"
-        args: ["exec", "${status_of-clientAppn.capture_pod_name}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "/test/tcp-client", "-a", "${ONPREMISE_IP}:${ONPREMISE_PORT}"]
+        args: ["exec", "${status_of-clientAppnnn.capture_pod_namee}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "/test/tcp-client", "-a", "${ONPREMISE_IP}:${ONPREMISE_PORT}"]
         capture:
           stdout:
             - name: output
@@ -249,7 +249,7 @@ teardown:
       sleep: 10ms  
 
 # Verify client-pod deletion
-  - name: confirm_client-pod_delete
+  - name: confirm_client-pod_deletee
     type: foreground
     exec: 
       timeout: 1m
@@ -258,14 +258,14 @@ teardown:
         args: ["get", "po", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
         capture:
           stdout: 
-            - name: confirm_client-pod_delete
+            - name: confirm_client-podd
               matchType: jsonpath
               match: "{.items[*].metadata.name}"
     expect:
       - name: status
         operator: equal
         value: 0
-      - name: confirm_client-pod_delete
+      - name: confirm_client-podd
         operator: notContainsStr
         value: "${META_DATA_NAME}"
     repeat:
