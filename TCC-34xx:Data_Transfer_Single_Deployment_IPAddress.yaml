@@ -201,8 +201,7 @@ teardown:
       count: -1
       until: success
       sleep: 10ms
-
-        
+ 
 # Verify Tibcotunneroute CR Deletion
   - name: confirm_deletionCR
     type: foreground
@@ -247,4 +246,29 @@ teardown:
     repeat:
       count: -1
       until: success
-      sleep: 10ms 
+      sleep: 10ms  
+
+# Verify client-pod deletion
+  - name: confirm_client-pod_intercomPod
+    type: foreground
+    exec: 
+      timeout: 1m
+      script: 
+        cmd: "kubectl"
+        args: ["get", "po", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+        capture:
+          stdout: 
+            - name: confirm_delete_intercom
+              matchType: jsonpath
+              match: "{.items[*].metadata.name}"
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+      - name: confirm_delete_intercom
+        operator: notContainsStr
+        value: "${META_DATA_NAME}"
+    repeat:
+      count: -1
+      until: success
+      sleep: 10ms  
