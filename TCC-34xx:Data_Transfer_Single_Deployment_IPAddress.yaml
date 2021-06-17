@@ -249,7 +249,7 @@ teardown:
       sleep: 10ms  
 
 # Verify client-pod deletion
-  - name: confirm_client-pod_intercomPod
+  - name: confirm_client-pod_delete
     type: foreground
     exec: 
       timeout: 1m
@@ -258,14 +258,14 @@ teardown:
         args: ["get", "po", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
         capture:
           stdout: 
-            - name: confirm_delete_intercom
+            - name: confirm_client-pod_delete
               matchType: jsonpath
               match: "{.items[*].metadata.name}"
     expect:
       - name: status
         operator: equal
         value: 0
-      - name: confirm_delete_intercom
+      - name: confirm_client-pod_delete
         operator: notContainsStr
         value: "${META_DATA_NAME}"
     repeat:
