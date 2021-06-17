@@ -23,7 +23,7 @@ setup:
       timeout: 10m
       script:
         cmd: "/bin/bash"
-        args: ["-c",  "curl -v -O  ${TCP_SERVER_LINUX && chmod +x tcp-server"]
+        args: ["-c",  "curl -v -O  ${TCP_SERVER_LINUX} && chmod +x tcp-server"]
         #args: ["-c", "timeout 10s ./tibtunnel connect -d --remote-debug -s 8081:localhost:8081 https://tcds-tunnel.tenant-integration.tcie.pro/tcp-client1 -l ./tibtunnelLog" ]
     expect:
       - name: status
