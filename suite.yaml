@@ -174,7 +174,11 @@ teardown:
       - name: confirm_delete_intercom
         operator: notContainsStr
         value: "intercom-client"
-        
+    repeat:
+      count: -1
+      until: success
+      sleep: 10ms
+
 #remove tcp-server_binary
   - name: rmTcp-server
     type: foreground
