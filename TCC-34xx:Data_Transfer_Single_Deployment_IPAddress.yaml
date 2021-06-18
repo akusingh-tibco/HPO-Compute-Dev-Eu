@@ -465,6 +465,6 @@ teardown:
         operator: notContainsStr
         value: "${META_DATA_NAME}"
     repeat:
-      count: 7
+      count: 20
       until: success
-      sleep: 10ms  
+      sleep: 1s  
