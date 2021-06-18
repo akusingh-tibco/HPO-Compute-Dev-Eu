@@ -113,8 +113,8 @@ tasks:
 # Status of Client Applications
   - name: status_of-clientAppn
     type: foreground
+    timeout: 1m
     exec: 
-      timeout: 30s
       script: 
         cmd: "${ENV.fnSh}"
         args: ["getPodNamesUsingSelector", "${NAMESPACE_TENANT}", "app=http"]
@@ -137,9 +137,9 @@ tasks:
         operator: notContains
         value: "Pending"
     repeat:
-      count: 3
+      count: 6
       until: success
-      sleep: 20ms  
+      sleep: 10s  
 
 
 # Tibtunnel Connect
@@ -194,7 +194,7 @@ tasks:
     repeat:
       count: 3
       until: success
-      sleep: 10ms  
+      sleep: 20ms  
 
 # Start On-Prem Appn with IP-Address
   - name: startOnpremAppn
@@ -268,9 +268,9 @@ tasks:
         operator: containsStr
         value: "Successfully send/received 1.0KiB"
     repeat:
-      count: 3
+      count: 10
       until: success
-      sleep: 2s 
+      sleep: 3s 
   - name: sleepCommand
     type: foreground
     exec:
@@ -329,8 +329,8 @@ teardown:
 # Delete the ClientApp Deployments
   - name: delete_yaml_file
     type: foreground
+    timeout: 1m
     exec: 
-      timeout: 1m
       script:
         #cmd: "kubectl"
         #args: ["delete", "-f", "./generated/client-app.yaml"]
@@ -341,9 +341,9 @@ teardown:
         operator: equal
         value: 0
     repeat:
-      count: 3
+      count: 10
       until: success
-      sleep: 10ms
+      sleep: 5s
 
 
 # # Verify Tibcotunneroute CR Deletion
@@ -419,8 +419,8 @@ teardown:
 # Verify ClientApp Deployments deletion
   - name: confirm_deletionA
     type: foreground
+    timeout: 1m
     exec: 
-      timeout: 1m
       script: 
         #cmd: "kubectl"
         #args: ["get", "deploy", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
@@ -439,16 +439,16 @@ teardown:
         operator: notContainsStr
         value: "${META_DATA_NAME}"
     repeat:
-      count: 3
+      count: 6
       until: success
-      sleep: 10ms 
+      sleep: 10s 
 
 
 # Verify client-pod deletion
   - name: confirm_client-pod_deletee
     type: foreground
+    timeout: 1m
     exec: 
-      timeout: 1m
       script: 
         cmd: "kubectl"
         args: ["get", "po", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
@@ -465,6 +465,6 @@ teardown:
         operator: notContainsStr
         value: "${META_DATA_NAME}"
     repeat:
-      count: 20
+      count: 12
       until: success
-      sleep: 1s  
+      sleep: 5s  
