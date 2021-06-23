@@ -221,13 +221,13 @@ tasks:
         cmd: "sleep"
         args: ["0"]
 
-        # Tibtunnel logs for PING/PONG
+# Tibtunnel logs for PING/PONG
   - name: tibtunnelLogValidate
     type: foreground
     exec:
       script:
         cmd: "/bin/bash"
-        args: ["-c", "cat $PWD/tibtunnelLog-3385 | grep -E ') PING|) PONG'"]   
+        args: ["-c", "cat $PWD/tibtunnelLog-3385 | grep PING"]   
         capture:
           stdout:
             - name: output
@@ -236,9 +236,9 @@ tasks:
       - name: output
         operator: containsStr
         value: "PING"
-      - name: output
-        operator: containsStr
-        value: "PONG"
+      # - name: output
+      #   operator: containsStr
+      #   value: "PONG"
     repeat:
       count: 6
       until: success
