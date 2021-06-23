@@ -34,7 +34,7 @@ setup:
   - name: deployIntercomClient
     type: foreground
     templates: 
-      - input: "./resources/services/client-intercom.yaml"
+      - input: "./resources/client-intercom.yaml"
         output: "./generated/client-intercom.yaml"
     exec: 
       timeout: 2m
@@ -65,7 +65,7 @@ setup:
         value: 0
 
 # AccessKeyHash and AccessSecretkey generation
-  - name: AccesssecretKey-AccessHashKey-generation
+  - name: secretKey_hashKey
     type: foreground  
     exec:
       timeout: 1m
@@ -92,7 +92,7 @@ setup:
       timeout: 5s
       script:
         cmd: "/bin/bash"
-        args: ["-c", "./tibtunnel configure -a ${suite.setup.AccesssecretKey-AccessHashKey-generation.accesskey}"]
+        args: ["-c", "./tibtunnel configure -a ${suite.setup.secretKey_hashKey.accesskey}"]
         capture:
           stdout:
             - name: output
@@ -116,8 +116,8 @@ setup:
     expect:
       - name: output
         operator: containsStr
-        value: "${suite.setup.AccesssecretKey-AccessHashKey-generation.accesskey}"
- 
+        value: "${suite.setup.secretKey_hashKey.accesskey}"
+        
 teardown:
 
 # Remove test-service Intercom-Client

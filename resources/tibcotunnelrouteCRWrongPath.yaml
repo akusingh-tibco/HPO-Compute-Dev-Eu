@@ -7,8 +7,8 @@ spec:
   selector:
     app.kubernetes.io/name: tcp-client
   endpoint:
-    path: /${ENDPOINT}             
+    path: /${WRONGENDPOINT}             
     fqdn: ${FQDN}
     config: accesskey
     configVariables:
-      ACCESS_KEY_HASH: "${suite.setup.AccesssecretKey-AccessHashKey-generation.accesshash}"
+      ACCESS_KEY_HASH: "${suite.setup.secretKey_hashKey.accesshash}"
