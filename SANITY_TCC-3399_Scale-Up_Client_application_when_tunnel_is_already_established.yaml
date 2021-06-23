@@ -108,37 +108,8 @@ tasks:
         cmd: "sleep"
         args: ["10"]
 
-# Tunnel Status b/w tibtunnel and Client App // before scaling
-  - name: checkTunnelStatus
-    type: foreground
-    timeout: 20s
-    exec:
-      script:
-        #cmd: "kubectl"
-        #args: ["exec", "${status_of-clientAppn.capture_pod_name}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "curl", "-s", "localhost:7778/v1/tunnel/status"]
-        cmd: "${ENV.fnSh}"
-        args: ["checkTunnelStatus","${status_of-clientAppn.capture_pod_name}","${NAMESPACE_TENANT}"]
-        capture:
-          stdout: 
-            - name: output
-              match: "((?s).*)"          
-    expect:
-      - name: output
-        operator: containsStr
-        value: "\"isConnected\":true"
-      - name: output
-        operator: notContainsStr
-        value: "false"
-      - name: output
-        operator: containsStr
-        value: "Tunnel is connected"
-    repeat:
-      count: 4
-      until: success
-      sleep: 5s  
-
-# Start On-Prem Appn
-  - name: startOnpremAppn
+# Start On-Prem Appn with HOST
+  - name: startOnpremAppnHost
     type: background
     exec:
       script:
@@ -181,8 +152,74 @@ tasks:
       count: 3
       until: success
       sleep: 2s 
+  - name: sleepCommand
+    type: foreground
+    exec:
+      script:
+        cmd: "sleep"
+        args: ["80"]
 
-#TCC- scale up client-Appn part 
+# TCC
+# Tibtunnel Connect
+  - name: tibtunnelConnect
+    type: background
+    exec:
+      script:
+        cmd: "/bin/bash"
+        args: ["-c", "timeout 60s ./tibtunnel connect -d --remote-debug -s ${CONTAINER_PORT}:${ONPREMISE_HOSTNAME}:${ONPREMISE_PORT} https://${FQDN}/${ENDPOINT} -l ./tibtunnelLogIP" ]
+  - name: sleepCommand
+    type: foreground
+    exec:
+      script:
+        cmd: "sleep"
+        args: ["10"]
+
+# Tunnel Status b/w tibtunnel and Client App   // before scaling
+  - name: checkTunnelStatus
+    type: foreground
+    timeout: 20s
+    exec:
+      script:
+        #cmd: "kubectl"
+        #args: ["exec", "${status_of-clientAppn.capture_pod_name}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "curl", "-s", "localhost:7778/v1/tunnel/status"]
+        cmd: "${ENV.fnSh}"
+        args: ["checkTunnelStatus","${status_of-clientAppn.capture_pod_name}","${NAMESPACE_TENANT}"]
+        capture:
+          stdout: 
+            - name: output
+              match: "((?s).*)"          
+    expect:
+      - name: output
+        operator: containsStr
+        value: "\"isConnected\":true"
+      - name: output
+        operator: notContainsStr
+        value: "false"
+    repeat:
+      count: 3
+      until: success
+      sleep: 20ms  
+
+# Start On-Prem Appn with IP-Address
+  - name: startOnpremAppn
+    type: background
+    exec:
+      script:
+        cmd: "/bin/bash"
+        args: ["-c", "timeout 30s ./tcp-server -d -a ${IP}:${ONPREMISE_PORT} >> ./tcpserverLogIP"]
+        capture:
+          stdout:
+            - name: output
+              match: "((?s).*)"
+          stderr:
+            - name: stderr
+              match: "((?s).*)"
+    expect:
+      - name: stderr
+        operator: containsStr
+        value: "TCP server started"
+
+# TCC- scale up client-Appn part 
 # Scaling up client applications 
   - name: scaleUp_clientApplications
     type: foreground
