@@ -94,12 +94,12 @@ tasks:
       sleep: 20s  
 
 # Tibtunnel Connect
-  - name: tibtunnelConnect
+  - name: tibtunnelConnectHost
     type: background
     exec:
       script:
         cmd: "/bin/bash"
-        args: ["-c", "timeout 90s ./tibtunnel connect -d --remote-debug -s ${CONTAINER_PORT}:${ONPREMISE_HOSTNAME}:${ONPREMISE_PORT} https://${FQDN}/${ENDPOINT} -l ./tibtunnelLog" ]
+        args: ["-c", "timeout 90s ./tibtunnel connect -d --remote-debug -s ${CONTAINER_PORT}:${ONPREMISE_HOSTNAME}:${ONPREMISE_PORT} https://${FQDN}/${ENDPOINT} -l ./tibtunnelLogHost" ]
 
   - name: sleepCommand
     type: foreground
@@ -114,7 +114,7 @@ tasks:
     exec:
       script:
         cmd: "/bin/bash"
-        args: ["-c", "timeout 30s ./tcp-server -d -a ${ONPREMISE_HOSTNAME}:${ONPREMISE_PORT} >> ./tcpserverLog"]
+        args: ["-c", "timeout 30s ./tcp-server -d -a ${ONPREMISE_HOSTNAME}:${ONPREMISE_PORT} >> ./tcpserverLogHost"]
         capture:
           stdout:
             - name: output
@@ -128,7 +128,7 @@ tasks:
         value: "TCP server started"
 
 # Communication b/w ClientPod and On-Prem Appn by sending Data
-  - name: sendData
+  - name: sendData_Host
     type: foreground
     exec:
       timeout: 30s
@@ -161,7 +161,7 @@ tasks:
 
 # TCC
 # Tibtunnel Connect
-  - name: tibtunnelConnect
+  - name: tibtunnelConnectIP
     type: background
     exec:
       script:
@@ -201,7 +201,7 @@ tasks:
       sleep: 20ms  
 
 # Start On-Prem Appn with IP-Address
-  - name: startOnpremAppn
+  - name: startOnpremAppnIP
     type: background
     exec:
       script:
