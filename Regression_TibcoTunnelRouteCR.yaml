@@ -219,7 +219,7 @@ tasks:
     exec:
       script:
         cmd: "sleep"
-        args: ["0"]
+        args: ["20"]
 
 # Tibtunnel logs for PING/PONG
   - name: tibtunnelLogValidate
