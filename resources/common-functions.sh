@@ -22,21 +22,21 @@ function checkTunnelStatus(){
 }
 
 
-function dataTransferUsingOnpremHostName(){
-    podName=$1
-    namespaceTenant=$2
-    onpremiseHostName=$3
-    omprecisePort=$4
-    kubectl exec ${podName} -n${namespaceTenant} -c main -- /test/tcp-client -a ${onpremiseHostName}:${onpremisePort}
-}
+# function dataTransferUsingOnpremHostName(){
+#     podName=$1
+#     namespaceTenant=$2
+#     onpremiseHostName=$3
+#     omprecisePort=$4
+#     kubectl exec ${podName} -n${namespaceTenant} -c main -- /test/tcp-client -a ${onpremiseHostName}:${onpremisePort}
+# }
 
 
-function dataTransferUsingOnpremIP(){
+function dataTransferToOnpremApp(){
     podName=$1
     namespaceTenant=$2
-    onpremiseHostName=$3
-    omprecisePort=$4
-    kubectl exec ${podName} -n${namespaceTenant} -c main -- /test/tcp-client -a ${onpremiseIP}:${onpremisePort}
+    onpremiseIP1=$3
+   # ompreciseePort=$4
+    kubectl exec ${podName} -n${namespaceTenant} -c main -- /test/tcp-client -a ${onpremiseIP1}
 }
 
 
@@ -47,14 +47,14 @@ function deleteResourse(){
 
 
 function getResources(){
-    resourseFilename=$1
+    resourseName=$1
     namespace=$2
     kubectl get ${resourseName} -n ${namespace} -o json
 }
 
 
 
-function data Trans(){
+function dataTrans(){
     input params - host,port from callinf TASK
     exec pods   
     .cp-client
