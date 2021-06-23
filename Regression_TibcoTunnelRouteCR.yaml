@@ -12,14 +12,14 @@ tasks:
     exec:
       script:
         cmd: "/bin/bash"
-        args: ["-c", "timeout 20s ./tibtunnel connect -d --remote-debug -s ${CONTAINER_PORT}:${IP}:${ONPREMISE_PORT} https://${FQDN}/${ENDPOINT} -l ./tibtunnelLog" ]
+        args: ["-c", "timeout 30s ./tibtunnel connect -d --remote-debug -s ${CONTAINER_PORT}:${IP}:${ONPREMISE_PORT} https://${FQDN}/${ENDPOINT} -l ./tibtunnelLog" ]
 
   - name: sleepCommand
     type: foreground
     exec:
       script:
         cmd: "sleep"
-        args: ["25"]
+        args: ["40"]
 # Tibtunnel logs for PING/PONG
   - name: tibtunnelLogValidate
     type: foreground
