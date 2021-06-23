@@ -140,9 +140,9 @@ tasks:
       - name: status
         operator: equal
         value: 0
-      - name: pingoutput
-        operator: containsStr
-        value: "PONG"
+      # - name: pingoutput
+      #   operator: containsStr
+      #   value: "PONG"
       - name: pingoutput
         operator: containsStr
         value: "PING"
