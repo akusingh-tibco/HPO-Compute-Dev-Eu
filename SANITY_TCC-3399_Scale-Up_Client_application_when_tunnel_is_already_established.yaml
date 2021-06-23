@@ -65,7 +65,7 @@ tasks:
 # Status of Client Applications
   - name: status_of-clientAppn
     type: foreground
-    timeout: 1m
+    timeout: 2m
     exec:
       script: 
         cmd: "${ENV.fnSh}"
@@ -91,7 +91,7 @@ tasks:
     repeat:
       count: 10
       until: success
-      sleep: 20s  
+      sleep: 12s  
 
 # Tibtunnel Connect
   - name: tibtunnelConnectHost
@@ -403,7 +403,7 @@ teardown:
 # Verify client-pod deletion
   - name: confirm_client-pod_deletee
     type: foreground
-    timeout: 1m
+    timeout: 2m
     exec: 
       script: 
         cmd: "kubectl"
@@ -421,6 +421,6 @@ teardown:
         operator: notContainsStr
         value: "${META_DATA_NAME}"
     repeat:
-      count: 12
+      count: 10
       until: success
-      sleep: 5s  
+      sleep: 12s  
