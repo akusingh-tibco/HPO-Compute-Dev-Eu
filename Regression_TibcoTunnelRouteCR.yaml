@@ -130,7 +130,8 @@ tasks:
       script:
         cmd: "/bin/bash"
        # args: ["-c", "awk '/PING/{print}' /Users/sugandhi/Desktop/GITRepository/Regression/Hybrid-Proxy-Operator-Regression/tibtunnelLog-3395 &&  '/PONG/{print}' /Users/sugandhi/Desktop/GITRepository/Regression/Hybrid-Proxy-Operator-Regression/tibtunnelLog-3395"] 
-        args: ["-c", "cat ./tibtunnelLog | grep -E ') PING|) PONG'"]  
+        # args: ["-c", "cat ./tibtunnelLog | grep -E ') PING|) PONG'"] 
+        args: ["-c", "cat $PWD/tibtunnelLog | grep PING"]  
         capture:
           stdout:
             - name: pingoutput
