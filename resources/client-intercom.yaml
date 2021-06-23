@@ -55,7 +55,7 @@ spec:
           kubernetes.io/os: linux
         containers:
         - name: main
-          image: ${TEST-SERVICE}
+          image: ${TEST_SERVICE}
           imagePullPolicy: Always
           ports:
           - containerPort: 8080

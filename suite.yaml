@@ -1,6 +1,19 @@
 name: suite
 
 setup: 
+ 
+# Cleaning up log files
+  - name: deleteLogFiles
+    type: foreground
+    timeout: 1m
+    exec:
+      script: 
+        cmd: "/bin/bash"
+        args: ["-c", "rm -f -- $PWD/*Log*"]
+    expect:
+      - name: status
+        operator: equal
+        value: 0 
 
 # #download tibtunnel & chmod +x
   - name: downloadTibtunnel
@@ -117,7 +130,7 @@ setup:
       - name: output
         operator: containsStr
         value: "${suite.setup.secretKey_hashKey.accesskey}"
-        
+
 teardown:
 
 # Remove test-service Intercom-Client

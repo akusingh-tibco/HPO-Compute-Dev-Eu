@@ -1,7 +1,7 @@
 name: Regression_TibtunnelOptions_Suite
 
 env: 
-  VERSION_BUILD: version 2.3.1 (build 96)             #change this build and version if changed.
+  VERSION_BUILD: version 2.3.1 (build 97)             #change this build and version if changed.
   PROFILE_NAME: XYZZZZ                                   #can change the profile name to validate.
 
 tasks: 
@@ -29,7 +29,7 @@ tasks:
         operator: containsStr
         value: "Cloud"
 
-# TCC - 3383 Tibtunnel version ---- current version 2.3.1 and build 96
+# TCC - 3383 Tibtunnel version ---- current version 2.3.1 and build 96 changed 97
   - name: tibtunnelVersion
     type: foreground
     exec:
