@@ -140,9 +140,25 @@ tasks:
       - name: status
         operator: equal
         value: 0
-      # - name: pingoutput
-      #   operator: containsStr
-      #   value: "PONG"
+      - name: pingoutput
+        operator: containsStr
+        value: "PING"
+  - name: tibtunnelLogValidatePO
+    type: foreground
+    exec:
+      script:
+        cmd: "/bin/bash"
+       # args: ["-c", "awk '/PING/{print}' /Users/sugandhi/Desktop/GITRepository/Regression/Hybrid-Proxy-Operator-Regression/tibtunnelLog-3395 &&  '/PONG/{print}' /Users/sugandhi/Desktop/GITRepository/Regression/Hybrid-Proxy-Operator-Regression/tibtunnelLog-3395"] 
+        # args: ["-c", "cat ./tibtunnelLog | grep -E ') PING|) PONG'"] 
+        args: ["-c", "cat $PWD/tibtunnelLog | grep PONG"]  
+        capture:
+          stdout:
+            - name: pingoutput
+              match: "((?s).*)"
+    expect:
+      - name: status
+        operator: equal
+        value: 0
       - name: pingoutput
         operator: containsStr
         value: "PING"
@@ -212,7 +228,7 @@ tasks:
     exec:
       script:
         cmd: "/bin/bash"
-        args: ["-c", "timeout 60s ./tibtunnel connect -d --remote-debug -s 8080:localhost:8080 https://${FQDN}/${ENDPOINT} -l $PWD/tibtunnelLog-3385" ]
+        args: ["-c", "timeout 90s ./tibtunnel connect -d --remote-debug -s 8080:localhost:8080 https://${FQDN}/${ENDPOINT} -l $PWD/tibtunnelLog-3385" ]
 
   - name: sleepCommand
     type: foreground
@@ -224,6 +240,7 @@ tasks:
 # Tibtunnel logs for PING/PONG
   - name: tibtunnelLogValidate
     type: foreground
+    timeout: 90s
     exec:
       script:
         cmd: "/bin/bash"
@@ -236,9 +253,24 @@ tasks:
       - name: output
         operator: containsStr
         value: "PING"
-      # - name: output
-      #   operator: containsStr
-      #   value: "PONG"
+    repeat:
+      count: 6
+      until: success
+      sleep: 5s
+  - name: tibtunnelLogValidatePONG
+    type: foreground
+    exec:
+      script:
+        cmd: "/bin/bash"
+        args: ["-c", "cat $PWD/tibtunnelLog-3385 | grep PONG"]   
+        capture:
+          stdout:
+            - name: output
+              match: "((?s).*)"
+    expect:
+      - name: output
+        operator: containsStr
+        value: "PING"
     repeat:
       count: 6
       until: success
@@ -270,12 +302,13 @@ tasks:
       - name: output
         operator: containsStr
         value: "Tunnel is connected"
+
   - name: sleepCommand
     type: foreground
     exec:
       script:
         cmd: "sleep"
-        args: ["40"]
+        args: ["80"]
 # Execution Output
   - name: INFO_______________TCC-3385--and--TCC-3395_____testcasecompletion
     type: foreground
@@ -290,7 +323,7 @@ tasks:
         value: 0
 
 # TCC-3394: 
-
+# Tibtunnel Connect
   - name: tibtunnelConnect
     type: background
     exec:
