@@ -242,7 +242,7 @@ tasks:
         #cmd: "${ENV.fnSh}"
         #args: ["getPodNamesUsingSelector", "${NAMESPACE_TENANT}", "app=http"]
         cmd: "kubectl"
-        args: ["get", "pods", "--sort-by=.metadata.creationTimestamp", "-n", "aws-compute-tibco-tenant-x", "-ojson"]
+        args: ["get", "pods", "--sort-by=.metadata.creationTimestamp", "-n${NAMESPACE_TENANT}", "-ojson"]
         capture:
           stdout:
             - name: running_state
