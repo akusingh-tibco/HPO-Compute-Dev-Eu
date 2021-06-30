@@ -107,8 +107,6 @@ tasks:
     timeout: 20s
     exec:
       script:
-        #cmd: "kubectl"
-        #args: ["exec", "${status_of-clientAppn.capture_pod_name}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "curl", "-s", "localhost:7778/v1/tunnel/status"]
         cmd: "${ENV.fnSh}"
         args: ["checkTunnelStatus","${status_of-clientAppn.capture_pod_name}","${NAMESPACE_TENANT}"]
         capture:
@@ -152,10 +150,7 @@ tasks:
     exec:
       timeout: 30s
       script:
-        #cmd: "kubectl"
-        #args: ["exec", "${status_of-clientAppn.capture_pod_name}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "/test/tcp-client", "-a", "${ONPREMISE_IP}:${ONPREMISE_PORT}"]
         cmd: "${ENV.fnSh}"
-        #args: ["dataTransferUsingOnpremIP", "${status_of-clientAppn.capture_pod_name}", "${NAMESPACE_TENANT}", "${IP}:${CONTAINER_PORT}" ]
         args: ["dataTransferToOnpremApp", "${status_of-clientAppn.capture_pod_name}", "${NAMESPACE_TENANT}", "${IP}:${CONTAINER_PORT}" ]
         capture:
           stdout:
