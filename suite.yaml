@@ -15,7 +15,7 @@ setup:
         operator: equal
         value: 0 
 
-# #download tibtunnel & chmod +x
+#download tibtunnel & chmod +x
   - name: downloadTibtunnel
     type: foreground
     exec:
