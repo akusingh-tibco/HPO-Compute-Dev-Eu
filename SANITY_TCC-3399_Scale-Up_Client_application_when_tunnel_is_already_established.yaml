@@ -127,7 +127,7 @@ tasks:
         operator: containsStr
         value: "TCP server started"
 
-# Communication b/w ClientPod and On-Prem Appn by sending Data
+# Communication b/w ClientPod and On-Prem Appn by sending Data HOST
   - name: sendData_Host
     type: foreground
     exec:
@@ -234,7 +234,7 @@ tasks:
         value: 0 
 
 # Status of Client Applications and picking up latest created pod after scaling 
-  - name: status_of-clientApplication
+  - name: Tstatus_of-clientApplication
     type: foreground
     timeout: 1m
     exec:
@@ -278,7 +278,7 @@ tasks:
         #cmd: "kubectl"
         #args: ["exec", "${status_of-clientAppn.capture_pod_name}", "-n${NAMESPACE_TENANT}", "-c", "main", "--", "curl", "-s", "localhost:7778/v1/tunnel/status"]
         cmd: "${ENV.fnSh}"
-        args: ["checkTunnelStatus","${status_of-clientApplication.capture_latest_pod_name}","${NAMESPACE_TENANT}"]
+        args: ["checkTunnelStatus","${Tstatus_of-clientApplication.capture_latest_pod_name}","${NAMESPACE_TENANT}"]
         capture:
           stdout: 
             - name: output
@@ -298,12 +298,36 @@ tasks:
       until: success
       sleep: 20ms  
 
+# Communication b/w ClientPod and On-Prem Appn by sending Data IP
+  - name: sendData
+    type: foreground
+    exec:
+      timeout: 30s
+      script:
+        cmd: "${ENV.fnSh}"
+        args: ["dataTransferToOnpremApp", "${Tstatus_of-clientAppn.capture_pod_name}", "${NAMESPACE_TENANT}", "${IP}:${CONTAINER_PORT}" ]
+        capture:
+          stdout:
+            - name: output
+              match: "((?s).*)"
+          stderr:
+            - name: stderr
+              match: "((?s).*)"              
+    expect:
+      - name: stderr
+        operator: containsStr
+        value: "Successfully send/received 1.0KiB"
+    repeat:
+      count: 10
+      until: success
+      sleep: 3s 
   - name: sleepCommand
     type: foreground
     exec:
       script:
         cmd: "sleep"
         args: ["80"]
+
 
 
 teardown: 

@@ -137,7 +137,7 @@ teardown:
   - name: delete_intercom_file
     type: foreground
     exec: 
-      timeout: 1m
+      timeout: 2m
       script:
         cmd: "kubectl"
         args: ["delete", "-f", "./generated/client-intercom.yaml"]
@@ -150,7 +150,7 @@ teardown:
   - name: confirm_deletion_intercom
     type: foreground
     exec: 
-      timeout: 1m
+      timeout: 2m
       script: 
         cmd: "kubectl"
         args: ["get", "deploy", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
