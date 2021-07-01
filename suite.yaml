@@ -2,6 +2,19 @@ name: suite
 
 setup: 
  
+# Clean the namesapace environtment
+  - name: delete_intercom_file
+    type: foreground
+    exec: 
+      timeout: 5m
+      script:
+        cmd: "kubectl"
+        args: ["delete", "all", "--all", "-n${NAMESPACE_TENANT}"]
+    expect:
+      - name: status
+        operator: equal
+        value: 0
+
 # Cleaning up log files
   - name: deleteLogFiles
     type: foreground
