@@ -305,7 +305,7 @@ tasks:
       timeout: 30s
       script:
         cmd: "${ENV.fnSh}"
-        args: ["dataTransferToOnpremApp", "${Tstatus_of-clientAppn.capture_pod_name}", "${NAMESPACE_TENANT}", "${IP}:${CONTAINER_PORT}" ]
+        args: ["dataTransferToOnpremApp", "${Tstatus_of-clientApplication.capture_latest_pod_name}", "${NAMESPACE_TENANT}", "${IP}:${CONTAINER_PORT}" ]
         capture:
           stdout:
             - name: output
