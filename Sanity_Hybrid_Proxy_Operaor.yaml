@@ -1,6 +1,8 @@
-name: Sanity_SingleDeploymentwithDataTransfer_With_ScaleUP_of_Client_Appn
+name: Sanity_HybridProxyOperator
 
 tasks: 
+
+# Sanity covers TCC-3415, TCC-3499 and DataTranfer with IP.
 
 # Deploy tibcotunnelrouteCR 
   - name: deployCR
@@ -159,7 +161,6 @@ tasks:
         cmd: "sleep"
         args: ["80"]
 
-# TCC
 # Tibtunnel Connect
   - name: tibtunnelConnectIP
     type: background
@@ -219,7 +220,6 @@ tasks:
         operator: containsStr
         value: "TCP server started"
 
-# TCC- scale up client-Appn part 
 # Scaling up client applications 
   - name: scaleUp_clientApplications
     type: foreground
