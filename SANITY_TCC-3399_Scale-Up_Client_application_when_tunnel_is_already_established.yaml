@@ -206,7 +206,7 @@ tasks:
     exec:
       script:
         cmd: "/bin/bash"
-        args: ["-c", "timeout 30s ./tcp-server -d -a ${IP}:${ONPREMISE_PORT} >> ./tcpserverLogIP"]
+        args: ["-c", "timeout 30s ./tcp-server -d -a ${ONPREMISE_HOSTNAME}:${ONPREMISE_PORT} >> ./tcpserverLogIP"]
         capture:
           stdout:
             - name: output
