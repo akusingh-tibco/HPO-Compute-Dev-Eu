@@ -133,64 +133,78 @@ setup:
 
 teardown:
 
-# Remove test-service Intercom-Client
+
+# Remove all deployments deployed
   - name: delete_intercom_file
     type: foreground
     exec: 
-      timeout: 2m
+      timeout: 5m
       script:
         cmd: "kubectl"
-        args: ["delete", "-f", "./generated/client-intercom.yaml"]
+        args: ["delete", "deploy", "--all", "-n${NAMESPACE_TENANT}"]
     expect:
       - name: status
         operator: equal
         value: 0
 
-# Verify test-service deletion
-  - name: confirm_deletion_intercom
-    type: foreground
-    exec: 
-      timeout: 2m
-      script: 
-        cmd: "kubectl"
-        args: ["get", "deploy", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
-        capture:
-          stdout: 
-            - name: confirm_delete_intercom
-              matchType: jsonpath
-              match: "{.items[*].metadata.name}"
-    expect:
-      - name: status
-        operator: equal
-        value: 0
-      - name: confirm_delete_intercom
-        operator: notContainsStr
-        value: "intercom-client"
+# # Remove test-service Intercom-Client
+#   - name: delete_intercom_file
+#     type: foreground
+#     exec: 
+#       timeout: 2m
+#       script:
+#         cmd: "kubectl"
+#         args: ["delete", "-f", "./generated/client-intercom.yaml"]
+#     expect:
+#       - name: status
+#         operator: equal
+#         value: 0
+
+# # Verify test-service deletion
+#   - name: confirm_deletion_intercom
+#     type: foreground
+#     exec: 
+#       timeout: 2m
+#       script: 
+#         cmd: "kubectl"
+#         args: ["get", "deploy", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+#         capture:
+#           stdout: 
+#             - name: confirm_delete_intercom
+#               matchType: jsonpath
+#               match: "{.items[*].metadata.name}"
+#     expect:
+#       - name: status
+#         operator: equal
+#         value: 0
+#       - name: confirm_delete_intercom
+#         operator: notContainsStr
+#         value: "intercom-client"
     
-# Verify int-pod deletion
-  - name: confirm_deletion_intercomPod
-    type: foreground
-    exec: 
-      timeout: 1m
-      script: 
-        cmd: "kubectl"
-        args: ["get", "po", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
-        capture:
-          stdout: 
-            - name: confirm_delete_intercom
-              matchType: jsonpath
-              match: "{.items[*].metadata.name}"
-    expect:
-      - name: status
-        operator: equal
-        value: 0
-      - name: confirm_delete_intercom
-        operator: notContainsStr
-        value: "intercom-client"
-    repeat:
-      count: -1
-      until: success
-      sleep: 10ms
+# # Verify int-pod deletion
+#   - name: confirm_deletion_intercomPod
+#     type: foreground
+#     exec: 
+#       timeout: 1m
+#       script: 
+#         cmd: "kubectl"
+#         args: ["get", "po", "-n", "${NAMESPACE_TENANT}", "-o", "json"]
+#         capture:
+#           stdout: 
+#             - name: confirm_delete_intercom
+#               matchType: jsonpath
+#               match: "{.items[*].metadata.name}"
+#     expect:
+#       - name: status
+#         operator: equal
+#         value: 0
+#       - name: confirm_delete_intercom
+#         operator: notContainsStr
+#         value: "intercom-client"
+#     repeat:
+#       count: -1
+#       until: success
+#       sleep: 10ms
 
 #remove tcp-server_binary
   - name: rmTcp-server
