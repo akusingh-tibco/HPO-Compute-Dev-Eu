@@ -98,38 +98,38 @@ setup:
         operator: equal
         value: 0
 
-# # Tibtunnel Configure Profile and Verify Profile
-#   - name: tibTunnelConfigureDefaultProfile
-#     type: foreground
-#     exec:
-#       timeout: 5s
-#       script:
-#         cmd: "/bin/bash"
-#         args: ["-c", "./tibtunnel configure -a ${suite.setup.secretKey_hashKey.accesskey}"]
-#         capture:
-#           stdout:
-#             - name: output
-#               match: "((?s).*)"
-#     expect:
-#       - name: output
-#         operator: containsStr
-#         value: "Configuration for profile 'default' was successfully saved"
+# Tibtunnel Configure Profile and Verify Profile
+  - name: tibTunnelConfigureDefaultProfile
+    type: foreground
+    exec:
+      timeout: 5s
+      script:
+        cmd: "/bin/bash"
+        args: ["-c", "./tibtunnel configure -a ${suite.setup.secretKey_hashKey.accesskey}"]
+        capture:
+          stdout:
+            - name: output
+              match: "((?s).*)"
+    expect:
+      - name: output
+        operator: containsStr
+        value: "Configuration for profile 'default' was successfully saved"
 
-#   - name: verifyProfileSaved
-#     type: foreground
-#     exec:
-#       timeout: 15s
-#       script:
-#         cmd: "/bin/bash"
-#         args: ["-c", "cat ~/.tibtunnel/credentials"]
-#         capture:
-#           stdout:
-#             - name: output
-#               match: "((?s).*)"
-#     expect:
-#       - name: output
-#         operator: containsStr
-#         value: "${suite.setup.secretKey_hashKey.accesskey}"
+  - name: verifyProfileSaved
+    type: foreground
+    exec:
+      timeout: 15s
+      script:
+        cmd: "/bin/bash"
+        args: ["-c", "cat ~/.tibtunnel/credentials"]
+        capture:
+          stdout:
+            - name: output
+              match: "((?s).*)"
+    expect:
+      - name: output
+        operator: containsStr
+        value: "${suite.setup.secretKey_hashKey.accesskey}"
 
 teardown:
 
